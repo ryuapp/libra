@@ -1,0 +1,73 @@
+{
+  "tasks": {
+    "check": "deno fmt --check . && deno lint . && deno check",
+    "prebuild": "deno run -W=_fresh prebuild.ts",
+    "dev": "deno task prebuild && vite",
+    "build": "deno task prebuild && vite build",
+    "deploy": "deno task build && wrangler deploy",
+    "start": "deno serve -A _fresh/server.js",
+    "update": "deno run -A -r jsr:@fresh/update .",
+    "cf-typegen": "wrangler types --include-runtime=false --env-interface  CloudflareEnv ./cloudflare-env.d.ts"
+  },
+  "imports": {
+    // Fresh
+    "@fresh/plugin-vite": "jsr:@fresh/plugin-vite@1.0.5",
+    "@radix-ui/react-icons": "npm:@radix-ui/react-icons@1.3.2",
+    "fresh": "jsr:@fresh/core@2.1.2",
+    "valibot": "npm:valibot@1.1.0",
+    "vite": "npm:vite@7.1.10",
+    "@preact/signals": "npm:@preact/signals@2.3.2",
+    "preact": "npm:preact@10.27.2",
+    // TailwindCSS
+    "@tailwindcss/vite": "npm:@tailwindcss/vite@4.1.14",
+    "tailwindcss": "npm:tailwindcss@4.1.14",
+    // Cloudflare
+    "@cloudflare/vite-plugin": "npm:@cloudflare/vite-plugin@1.13.12",
+    "@cloudflare/workers-types": "npm:@cloudflare/workers-types@4.20251011.0",
+    "wrangler": "npm:wrangler@4.45.1"
+  },
+  "lint": {
+    "rules": {
+      "tags": [
+        "fresh",
+        "recommended"
+      ]
+    },
+    "plugins": ["jsr:@ryu/deno-lint-plugin-tailwindcss@0.2.0"]
+  },
+  "exclude": [
+    "**/_fresh/*",
+    "cloudflare-env.d.ts"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.asynciterable",
+      "dom.iterable",
+      "deno.ns"
+    ],
+    "jsx": "precompile",
+    "jsxImportSource": "preact",
+    "jsxPrecompileSkipElements": [
+      "a",
+      "img",
+      "source",
+      "body",
+      "html",
+      "head",
+      "title",
+      "meta",
+      "script",
+      "link",
+      "style",
+      "base",
+      "noscript",
+      "template"
+    ],
+    "types": [
+      "vite/client",
+      "@cloudflare/workers-types"
+    ]
+  },
+  "nodeModulesDir": "auto"
+}

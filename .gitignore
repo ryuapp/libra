@@ -1,0 +1,9 @@
+# Fresh build directory
+_fresh/
+# Cloudflare
+.wrangler
+
+# Deps
+node_modules/
+.vite
+vite.config.ts*

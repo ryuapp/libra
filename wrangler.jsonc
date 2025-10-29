@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "libra",
+  "main": "./_fresh/server.js",
+  "compatibility_date": "2025-10-08",
+  "routes": [
+    {
+      "pattern": "libra.ryu.app",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "./_fresh/client",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

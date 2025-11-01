@@ -28,7 +28,7 @@ export default define.page<typeof handler>(({ data }) => {
       </Head>
 
       <div class="mx-auto max-w-3xl">
-        <div class="mb-8">
+        <div class="mb-8" style={{ viewTransitionName: "libra-logo" }}>
           <a
             href="/"
             class="inline-block font-bold text-2xl text-white transition-opacity hover:opacity-80"
@@ -38,7 +38,7 @@ export default define.page<typeof handler>(({ data }) => {
         </div>
 
         <div class="mb-12">
-          <SearchBar initialQuery={data.query} />
+          <SearchBar initialQuery={data.query} isSearchPage />
         </div>
 
         <SearchResults query={data.query} initialResults={data.results} />

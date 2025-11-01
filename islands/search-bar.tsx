@@ -4,10 +4,11 @@ import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
 interface SearchBarProps {
   initialQuery?: string;
+  isSearchPage?: boolean;
 }
 
 export default function SearchBar(
-  { initialQuery = "" }: SearchBarProps,
+  { initialQuery = "", isSearchPage = false }: SearchBarProps,
 ) {
   const query = useSignal(initialQuery);
 
@@ -22,8 +23,14 @@ export default function SearchBar(
     }
   };
 
+  const transitionName = isSearchPage ? "search-box-search" : "search-box";
+
   return (
-    <form onSubmit={handleSubmit} class="w-full">
+    <form
+      onSubmit={handleSubmit}
+      class="w-full"
+      style={{ viewTransitionName: transitionName }}
+    >
       <div class="relative flex items-center rounded-lg border border-gray-700 p-2 transition-colors focus-within:border-gray-500 hover:border-gray-600">
         <MagnifyingGlassIcon class="mr-3 size-5 text-gray-500" />
         <input

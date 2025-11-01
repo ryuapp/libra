@@ -3,6 +3,7 @@ import { page } from "fresh";
 import { define } from "../../utils.ts";
 import MarkdownIt from "markdown-it";
 import CopyButton from "../../islands/copy-button.tsx";
+import SearchBar from "../../islands/search-bar.tsx";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import {
   getRegistryConfig,
@@ -99,13 +100,17 @@ export default define.page<typeof handler>(({ data }) => {
       </Head>
 
       <div class="mx-auto max-w-3xl">
-        <div class="mb-8">
+        <div class="mb-8" style={{ viewTransitionName: "libra-logo" }}>
           <a
             href="/"
             class="inline-block font-bold text-2xl text-white transition-opacity hover:opacity-80"
           >
             Libra
           </a>
+        </div>
+
+        <div class="mb-12">
+          <SearchBar />
         </div>
 
         <div class="mb-8 rounded-lg border border-gray-800 bg-gray-900 p-6">

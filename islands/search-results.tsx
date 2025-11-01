@@ -37,7 +37,9 @@ export default function SearchResults({ query }: SearchResultsProps) {
       try {
         const response = await fetch(url);
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json() as {
+            result: PackageResult | null;
+          };
           if (data.result) {
             results.value = [...results.value, data.result];
           }
@@ -87,13 +89,16 @@ export default function SearchResults({ query }: SearchResultsProps) {
 
   return (
     <div class="space-y-3">
-      {results.value.map((pkg) => (
-        <div
-          key={`${pkg.source}-${pkg.name}`}
-          class="rounded-lg border border-gray-800 bg-gray-900 p-4"
-        >
-          <div class="mb-3 flex items-start justify-between gap-3">
-            <div class="flex gap-2 text-xs">
+      {results.value.map((pkg) => {
+        // Determine the detail page URL based on registry
+        const detailUrl = `/${pkg.source}/${decodeURIComponent(pkg.name)}`;
+
+        return (
+          <div
+            key={`${pkg.source}-${pkg.name}`}
+            class="rounded-lg border border-gray-800 bg-gray-900 p-4"
+          >
+            <div class="mb-3 flex items-center gap-2 text-xs">
               {pkg.github && (
                 <a
                   href={pkg.github}
@@ -129,20 +134,23 @@ export default function SearchResults({ query }: SearchResultsProps) {
                 {pkg.source === "crates" ? "crates.io" : pkg.source}
               </a>
             </div>
-          </div>
-          <div class="mb-3 flex items-center gap-3">
-            <div class="font-semibold text-white text-xl">
-              {pkg.name}
+            <div class="mb-3 flex items-center gap-3">
+              <a
+                href={detailUrl}
+                class="font-semibold text-white text-xl hover:underline"
+              >
+                {decodeURIComponent(pkg.name)}
+              </a>
+              {pkg.version && <CopyButton text={pkg.version} />}
             </div>
-            {pkg.version && <CopyButton text={pkg.version} />}
+            {pkg.description && (
+              <p class="text-gray-400 text-sm">
+                {pkg.description}
+              </p>
+            )}
           </div>
-          {pkg.description && (
-            <p class="text-gray-400 text-sm">
-              {pkg.description}
-            </p>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

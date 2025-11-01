@@ -24,6 +24,7 @@ interface NpmPackageInfo {
   name: string;
   version: string;
   description?: string;
+  readme?: string;
   maintainers?: Array<{
     name: string;
   }>;
@@ -114,6 +115,65 @@ export async function searchNpm(query: string): Promise<PackageResult | null> {
     return result;
   } catch (error) {
     console.error("NPM package fetch error:", error);
+    return null;
+  }
+}
+
+export async function getReadmeNpm(
+  query: string,
+): Promise<string | null> {
+  // Validate query with valibot
+  const parseResult = v.safeParse(NpmPackageNameSchema, query);
+  if (!parseResult.success) {
+    return null;
+  }
+
+  const validQuery = parseResult.output;
+  const cacheKey = `https://cache.libra.internal/npm/readme/${
+    encodeURIComponent(validQuery)
+  }`;
+  const cache = await caches.open("npm");
+
+  try {
+    // Check cache first
+    const cachedResponse = await cache.match(cacheKey);
+    if (cachedResponse) {
+      return await cachedResponse.text();
+    }
+
+    // Fetch README.md from esm.sh
+    const readmeUrl = `https://esm.sh/${
+      encodeURIComponent(validQuery)
+    }/README.md`;
+    const readmeResponse = await fetch(readmeUrl);
+
+    if (readmeResponse.ok) {
+      const readme = await readmeResponse.text();
+
+      // Cache successful result for 1 hour
+      const successResponse = new Response(readme, {
+        headers: {
+          "Content-Type": "text/markdown",
+          "Cache-Control": "public, s-maxage=3600", // 1 hour
+        },
+      });
+      await cache.put(cacheKey, successResponse.clone());
+
+      return readme;
+    }
+
+    // Cache not found result for 24 hours
+    const notFoundResponse = new Response("", {
+      status: 404,
+      headers: {
+        "Cache-Control": "public, s-maxage=86400", // 24 hours
+      },
+    });
+    await cache.put(cacheKey, notFoundResponse.clone());
+
+    return null;
+  } catch (error) {
+    console.error("NPM readme fetch error:", error);
     return null;
   }
 }

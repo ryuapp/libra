@@ -8,7 +8,8 @@ interface CopyButtonProps {
 export default function CopyButton({ text }: CopyButtonProps) {
   const copied = useSignal(false);
 
-  const handleCopy = async () => {
+  const handleCopy = async (e: Event) => {
+    e.stopPropagation();
     try {
       await navigator.clipboard.writeText(text);
       copied.value = true;

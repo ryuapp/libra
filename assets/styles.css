@@ -1,1 +1,76 @@
 @import "tailwindcss";
+
+@theme {
+  --color-npm-bg: rgb(239, 68, 68, 0.1);
+  --color-npm-text: rgb(248, 113, 113);
+  --color-jsr-bg: rgba(240, 219, 79, 0.15);
+  --color-jsr-text: #f0db4f;
+  --color-crates-bg: hsl(115, 31%, 30%);
+  --color-crates-text: #a8e6a1;
+}
+
+/* Markdown styles */
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  @apply font-bold text-white mt-6 mb-3;
+}
+
+.markdown h1 {
+  @apply text-3xl mt-8 first:mt-0;
+}
+
+.markdown h2 {
+  @apply text-2xl;
+}
+
+.markdown h3 {
+  @apply text-xl mt-5;
+}
+
+.markdown h4 {
+  @apply text-lg mt-4;
+}
+
+.markdown p {
+  @apply text-gray-300 leading-relaxed;
+}
+
+.markdown p:has(img) {
+  @apply flex flex-wrap gap-2 items-center;
+}
+
+.markdown ul {
+  @apply list-disc list-inside text-gray-300 space-y-2 ml-4;
+}
+
+.markdown ol {
+  @apply list-decimal list-inside text-gray-300 space-y-2 ml-4;
+}
+
+.markdown li {
+  @apply text-gray-300;
+}
+
+.markdown a {
+  @apply text-blue-400 hover:text-blue-300 underline;
+}
+
+.markdown a img {
+  @apply max-w-full h-auto;
+}
+
+.markdown code {
+  @apply bg-gray-800 px-2 py-1 rounded text-sm text-gray-200 font-mono;
+}
+
+.markdown pre {
+  @apply bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4;
+}
+
+.markdown blockquote {
+  @apply border-l-4 border-gray-600 pl-4 italic text-gray-400 my-4;
+}

@@ -22,6 +22,86 @@ interface CrateInfo {
   };
 }
 
+export async function getReadmeCrates(
+  query: string,
+): Promise<string | null> {
+  // Validate query with valibot
+  const parseResult = v.safeParse(CratesPackageNameSchema, query);
+  if (!parseResult.success) {
+    return null;
+  }
+
+  const validQuery = parseResult.output;
+  const cacheKey = `https://cache.libra.internal/crates/readme/${
+    encodeURIComponent(validQuery)
+  }`;
+  const cache = await caches.open("crates");
+
+  try {
+    // Check cache first
+    const cachedResponse = await cache.match(cacheKey);
+    if (cachedResponse) {
+      return await cachedResponse.text();
+    }
+
+    // Get the crate info to find the version
+    const crateResponse = await fetch(
+      `https://crates.io/api/v1/crates/${encodeURIComponent(validQuery)}`,
+      {
+        headers: {
+          "User-Agent": "Libra/1.0 (package search engine)",
+        },
+      },
+    );
+
+    if (!crateResponse.ok) {
+      return null;
+    }
+
+    const data = await crateResponse.json() as CrateInfo;
+    const version = data.crate.max_version;
+
+    // Fetch README from crates.io API
+    const readmeUrl = `https://crates.io/api/v1/crates/${
+      encodeURIComponent(validQuery)
+    }/${version}/readme`;
+    const readmeResponse = await fetch(readmeUrl, {
+      headers: {
+        "User-Agent": "Libra/1.0 (package search engine)",
+      },
+    });
+
+    if (readmeResponse.ok) {
+      const readme = await readmeResponse.text();
+
+      // Cache successful result for 1 hour
+      const successResponse = new Response(readme, {
+        headers: {
+          "Content-Type": "text/html",
+          "Cache-Control": "public, s-maxage=3600", // 1 hour
+        },
+      });
+      await cache.put(cacheKey, successResponse.clone());
+
+      return readme;
+    }
+
+    // Cache not found result for 24 hours
+    const notFoundResponse = new Response("", {
+      status: 404,
+      headers: {
+        "Cache-Control": "public, s-maxage=86400", // 24 hours
+      },
+    });
+    await cache.put(cacheKey, notFoundResponse.clone());
+
+    return null;
+  } catch (error) {
+    console.error("Crates.io readme fetch error:", error);
+    return null;
+  }
+}
+
 export async function searchCrates(
   query: string,
 ): Promise<PackageResult | null> {

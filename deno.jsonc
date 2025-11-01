@@ -17,6 +17,7 @@
     "ky": "npm:ky@1.13.0",
     "markdown-it": "npm:markdown-it@14.1.0",
     "valibot": "npm:valibot@1.1.0",
+    "isomorphic-dompurify": "npm:isomorphic-dompurify@2.30.1",
     "vite": "npm:vite@7.1.10",
     "@preact/signals": "npm:@preact/signals@2.3.2",
     "preact": "npm:preact@10.27.2",

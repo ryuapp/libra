@@ -5,6 +5,7 @@ import MarkdownIt from "markdown-it";
 import CopyButton from "../../islands/copy-button.tsx";
 import SearchBar from "../../islands/search-bar.tsx";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { sanitizeHtml } from "../../lib/sanitize.ts";
 import {
   getRegistryConfig,
   type Registry,
@@ -65,16 +66,19 @@ export default define.page<typeof handler>(({ data }) => {
   // Render markdown to HTML if needed (not for crates.io which returns HTML)
   let renderedHtml = "";
   if (readme) {
+    let html = "";
     if (config.isHtml) {
-      renderedHtml = readme;
+      html = readme;
     } else {
       const md = new MarkdownIt({
         html: true,
         linkify: true,
         typographer: true,
       });
-      renderedHtml = md.render(readme);
+      html = md.render(readme);
     }
+    // Sanitize the HTML to prevent XSS attacks
+    renderedHtml = sanitizeHtml(html);
   }
 
   // Badge styling based on registry

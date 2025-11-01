@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { httpClient } from "./http-client.ts";
 import type { PackageResult } from "./types.ts";
 
 // crates.io package name schema: alphanumeric, hyphens, underscores
@@ -45,34 +46,19 @@ export async function getReadmeCrates(
     }
 
     // Get the crate info to find the version
-    const crateResponse = await fetch(
+    const data = await httpClient(
       `https://crates.io/api/v1/crates/${encodeURIComponent(validQuery)}`,
-      {
-        headers: {
-          "User-Agent": "Libra/1.0 (package search engine)",
-        },
-      },
-    );
+    ).json<CrateInfo>();
 
-    if (!crateResponse.ok) {
-      return null;
-    }
-
-    const data = await crateResponse.json() as CrateInfo;
     const version = data.crate.max_version;
 
     // Fetch README from crates.io API
     const readmeUrl = `https://crates.io/api/v1/crates/${
       encodeURIComponent(validQuery)
     }/${version}/readme`;
-    const readmeResponse = await fetch(readmeUrl, {
-      headers: {
-        "User-Agent": "Libra/1.0 (package search engine)",
-      },
-    });
 
-    if (readmeResponse.ok) {
-      const readme = await readmeResponse.text();
+    try {
+      const readme = await httpClient(readmeUrl).text();
 
       // Cache successful result for 1 hour
       const successResponse = new Response(readme, {
@@ -84,20 +70,20 @@ export async function getReadmeCrates(
       await cache.put(cacheKey, successResponse.clone());
 
       return readme;
+    } catch (_error) {
+      // Cache not found result for 24 hours
+      const notFoundResponse = new Response("", {
+        status: 404,
+        headers: {
+          "Cache-Control": "public, s-maxage=86400", // 24 hours
+        },
+      });
+      await cache.put(cacheKey, notFoundResponse.clone());
+
+      return null;
     }
-
-    // Cache not found result for 24 hours
-    const notFoundResponse = new Response("", {
-      status: 404,
-      headers: {
-        "Cache-Control": "public, s-maxage=86400", // 24 hours
-      },
-    });
-    await cache.put(cacheKey, notFoundResponse.clone());
-
-    return null;
-  } catch (error) {
-    console.error("Crates.io readme fetch error:", error);
+  } catch (_error) {
+    console.error("Crates.io readme fetch error:", _error);
     return null;
   }
 }
@@ -127,16 +113,12 @@ export async function searchCrates(
       return cached.result;
     }
 
-    const response = await fetch(
-      `https://crates.io/api/v1/crates/${encodeURIComponent(validQuery)}`,
-      {
-        headers: {
-          "User-Agent": "Libra/1.0 (package search engine)",
-        },
-      },
-    );
-
-    if (!response.ok) {
+    let data: CrateInfo;
+    try {
+      data = await httpClient(
+        `https://crates.io/api/v1/crates/${encodeURIComponent(validQuery)}`,
+      ).json<CrateInfo>();
+    } catch (_error) {
       // Cache not found result for 24 hours
       const notFoundResponse = new Response(
         JSON.stringify({ result: null }),
@@ -150,8 +132,6 @@ export async function searchCrates(
       await cache.put(cacheKey, notFoundResponse.clone());
       return null;
     }
-
-    const data = await response.json() as CrateInfo;
 
     // Extract GitHub URL if it's a GitHub repository
     let github: string | undefined;

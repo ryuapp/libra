@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { httpClient } from "./http-client.ts";
 import type { PackageResult } from "./types.ts";
 
 // JSR package name schema: @scope/name or scope/name format
@@ -61,13 +62,14 @@ export async function searchJsr(query: string): Promise<PackageResult | null> {
       name = parts[1];
     }
 
-    const response = await fetch(
-      `https://jsr.io/api/scopes/${encodeURIComponent(scope)}/packages/${
-        encodeURIComponent(name)
-      }`,
-    );
-
-    if (!response.ok) {
+    let data: JsrPackageInfo;
+    try {
+      data = await httpClient(
+        `https://jsr.io/api/scopes/${encodeURIComponent(scope)}/packages/${
+          encodeURIComponent(name)
+        }`,
+      ).json<JsrPackageInfo>();
+    } catch (_error) {
       // Cache not found result for 24 hours
       const notFoundResponse = new Response(
         JSON.stringify({ result: null }),
@@ -81,8 +83,6 @@ export async function searchJsr(query: string): Promise<PackageResult | null> {
       await cache.put(cacheKey, notFoundResponse.clone());
       return null;
     }
-
-    const data = await response.json() as JsrPackageInfo;
 
     // Extract GitHub URL
     let github: string | undefined;
@@ -157,10 +157,9 @@ export async function getReadmeJsr(
 
     // Fetch README.md from esm.sh which provides JSR package contents
     const readmeUrl = `https://esm.sh/jsr/@${scope}/${name}/README.md`;
-    const readmeResponse = await fetch(readmeUrl);
 
-    if (readmeResponse.ok) {
-      const readme = await readmeResponse.text();
+    try {
+      const readme = await httpClient(readmeUrl).text();
 
       // Cache successful result for 1 hour
       const successResponse = new Response(readme, {
@@ -172,20 +171,20 @@ export async function getReadmeJsr(
       await cache.put(cacheKey, successResponse.clone());
 
       return readme;
+    } catch (_error) {
+      // Cache not found result for 24 hours
+      const notFoundResponse = new Response("", {
+        status: 404,
+        headers: {
+          "Cache-Control": "public, s-maxage=86400", // 24 hours
+        },
+      });
+      await cache.put(cacheKey, notFoundResponse.clone());
+
+      return null;
     }
-
-    // Cache not found result for 24 hours
-    const notFoundResponse = new Response("", {
-      status: 404,
-      headers: {
-        "Cache-Control": "public, s-maxage=86400", // 24 hours
-      },
-    });
-    await cache.put(cacheKey, notFoundResponse.clone());
-
-    return null;
-  } catch (error) {
-    console.error("JSR readme fetch error:", error);
+  } catch (_error) {
+    console.error("JSR readme fetch error:", _error);
     return null;
   }
 }

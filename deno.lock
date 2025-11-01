@@ -42,6 +42,7 @@
     "npm:esbuild-wasm@0.25.7": "0.25.7",
     "npm:esbuild@0.25.7": "0.25.7",
     "npm:esbuild@~0.25.5": "0.25.11",
+    "npm:ky@1.13.0": "1.13.0",
     "npm:markdown-it@14.1.0": "14.1.0",
     "npm:pindeps@*": "0.3.1",
     "npm:preact-render-to-string@^6.5.11": "6.6.3_preact@10.27.2",
@@ -1555,6 +1556,9 @@
     "kleur@4.1.5": {
       "integrity": "sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ=="
     },
+    "ky@1.13.0": {
+      "integrity": "sha512-JeNNGs44hVUp2XxO3FY9WV28ymG7LgO4wju4HL/dCq1A8eKDcFgVrdCn1ssn+3Q/5OQilv5aYsL0DMt5mmAV9w=="
+    },
     "lightningcss-darwin-arm64@1.30.1": {
       "integrity": "sha512-c8JK7hyE65X1MHMN+Viq9n11RRC7hgin3HhYKhrMyaXflk5GVplZ60IxyoVtzILeKr+xAJwg6zK6sjTBJ0FKYQ==",
       "os": ["darwin"],
@@ -2008,6 +2012,7 @@
       "npm:@preact/signals@2.3.2",
       "npm:@radix-ui/react-icons@1.3.2",
       "npm:@tailwindcss/vite@4.1.14",
+      "npm:ky@1.13.0",
       "npm:markdown-it@14.1.0",
       "npm:preact@10.27.2",
       "npm:tailwindcss@4.1.14",

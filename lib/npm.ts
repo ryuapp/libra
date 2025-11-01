@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { httpClient } from "./http-client.ts";
 import type { PackageResult } from "./types.ts";
 
 // npm package name schema
@@ -58,11 +59,12 @@ export async function searchNpm(query: string): Promise<PackageResult | null> {
     }
 
     // Fetch from npm registry (latest version only)
-    const response = await fetch(
-      `https://registry.npmjs.org/${encodeURIComponent(validQuery)}/latest`,
-    );
-
-    if (!response.ok) {
+    let data: NpmPackageInfo;
+    try {
+      data = await httpClient(
+        `https://registry.npmjs.org/${encodeURIComponent(validQuery)}/latest`,
+      ).json<NpmPackageInfo>();
+    } catch (_error) {
       // Cache not found result for 24 hours
       const notFoundResponse = new Response(
         JSON.stringify({ result: null }),
@@ -76,8 +78,6 @@ export async function searchNpm(query: string): Promise<PackageResult | null> {
       await cache.put(cacheKey, notFoundResponse.clone());
       return null;
     }
-
-    const data = await response.json() as NpmPackageInfo;
 
     // Extract GitHub URL from repository
     let github: string | undefined;
@@ -145,10 +145,9 @@ export async function getReadmeNpm(
     const readmeUrl = `https://esm.sh/${
       encodeURIComponent(validQuery)
     }/README.md`;
-    const readmeResponse = await fetch(readmeUrl);
 
-    if (readmeResponse.ok) {
-      const readme = await readmeResponse.text();
+    try {
+      const readme = await httpClient(readmeUrl).text();
 
       // Cache successful result for 1 hour
       const successResponse = new Response(readme, {
@@ -160,18 +159,18 @@ export async function getReadmeNpm(
       await cache.put(cacheKey, successResponse.clone());
 
       return readme;
+    } catch (_error) {
+      // Cache not found result for 24 hours
+      const notFoundResponse = new Response("", {
+        status: 404,
+        headers: {
+          "Cache-Control": "public, s-maxage=86400", // 24 hours
+        },
+      });
+      await cache.put(cacheKey, notFoundResponse.clone());
+
+      return null;
     }
-
-    // Cache not found result for 24 hours
-    const notFoundResponse = new Response("", {
-      status: 404,
-      headers: {
-        "Cache-Control": "public, s-maxage=86400", // 24 hours
-      },
-    });
-    await cache.put(cacheKey, notFoundResponse.clone());
-
-    return null;
   } catch (error) {
     console.error("NPM readme fetch error:", error);
     return null;

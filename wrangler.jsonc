@@ -3,6 +3,7 @@
   "name": "libra",
   "main": "./_fresh/server.js",
   "compatibility_date": "2025-10-08",
+  "compatibility_flags": ["nodejs_compat"],
   "routes": [
     {
       "pattern": "libra.ryu.app",

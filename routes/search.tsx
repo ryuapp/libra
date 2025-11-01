@@ -1,13 +1,21 @@
 import { Head } from "fresh/runtime";
 import { page } from "fresh";
 import { define } from "../utils.ts";
+import { performSSRSearch } from "../lib/search.ts";
+import type { PackageResult } from "../lib/types.ts";
 import SearchBar from "../islands/search-bar.tsx";
 import SearchResults from "../islands/search-results.tsx";
 
+interface SearchPageData {
+  query: string;
+  results: PackageResult[];
+}
+
 export const handler = define.handlers({
-  GET(ctx) {
+  async GET(ctx) {
     const query = ctx.url.searchParams.get("q") || "";
-    return page({ query });
+    const results = await performSSRSearch(query);
+    return page<SearchPageData>({ query, results });
   },
 });
 
@@ -33,7 +41,7 @@ export default define.page<typeof handler>(({ data }) => {
           <SearchBar initialQuery={data.query} />
         </div>
 
-        <SearchResults query={data.query} />
+        <SearchResults query={data.query} initialResults={data.results} />
       </div>
     </div>
   );

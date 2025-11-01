@@ -90,6 +90,7 @@ export async function getReadmeCrates(
 
 export async function searchCrates(
   query: string,
+  options?: { cacheOnly?: boolean },
 ): Promise<PackageResult | null> {
   // Validate query with valibot
   const parseResult = v.safeParse(CratesPackageNameSchema, query);
@@ -111,6 +112,11 @@ export async function searchCrates(
         result: PackageResult | null;
       };
       return cached.result;
+    }
+
+    // If cacheOnly is set, return null if not in cache
+    if (options?.cacheOnly) {
+      return null;
     }
 
     let data: CrateInfo;

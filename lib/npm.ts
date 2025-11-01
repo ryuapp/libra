@@ -35,7 +35,10 @@ interface NpmPackageInfo {
   };
 }
 
-export async function searchNpm(query: string): Promise<PackageResult | null> {
+export async function searchNpm(
+  query: string,
+  options?: { cacheOnly?: boolean },
+): Promise<PackageResult | null> {
   // Validate query with valibot
   const parseResult = v.safeParse(NpmPackageNameSchema, query);
   if (!parseResult.success) {
@@ -56,6 +59,11 @@ export async function searchNpm(query: string): Promise<PackageResult | null> {
         result: PackageResult | null;
       };
       return cached.result;
+    }
+
+    // If cacheOnly is set, return null if not in cache
+    if (options?.cacheOnly) {
+      return null;
     }
 
     // Fetch from npm registry (latest version only)

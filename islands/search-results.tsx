@@ -15,14 +15,23 @@ interface PackageResult {
 
 interface SearchResultsProps {
   query: string;
+  initialResults?: PackageResult[];
 }
 
-export default function SearchResults({ query }: SearchResultsProps) {
-  const results = useSignal<PackageResult[]>([]);
-  const loading = useSignal(true);
+export default function SearchResults(
+  { query, initialResults = [] }: SearchResultsProps,
+) {
+  const results = useSignal<PackageResult[]>(initialResults);
+  const loading = useSignal(initialResults.length === 0 && query.trim() !== "");
 
   useEffect(() => {
     if (!query.trim()) {
+      loading.value = false;
+      return;
+    }
+
+    // Only fetch from API if we don't have initial results
+    if (initialResults.length > 0) {
       loading.value = false;
       return;
     }

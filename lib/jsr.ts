@@ -25,7 +25,10 @@ interface JsrPackageInfo {
   };
 }
 
-export async function searchJsr(query: string): Promise<PackageResult | null> {
+export async function searchJsr(
+  query: string,
+  options?: { cacheOnly?: boolean },
+): Promise<PackageResult | null> {
   // Validate query with valibot
   const parseResult = v.safeParse(JsrPackageNameSchema, query);
   if (!parseResult.success) {
@@ -46,6 +49,11 @@ export async function searchJsr(query: string): Promise<PackageResult | null> {
         result: PackageResult | null;
       };
       return cached.result;
+    }
+
+    // If cacheOnly is set, return null if not in cache
+    if (options?.cacheOnly) {
+      return null;
     }
 
     // Parse query - supports both @scope/name and scope/name formats

@@ -91,7 +91,7 @@ export default define.page<typeof handler>(({ data }) => {
   };
 
   return (
-    <div class="min-h-screen bg-black px-6 py-12">
+    <div class="min-h-screen px-6 py-12">
       <Head>
         <title>{pkg.name} - Libra</title>
         <meta name="description" content={pkg.description} />

@@ -13,7 +13,7 @@ export const handler = define.handlers({
 
 export default define.page<typeof handler>(({ data }) => {
   return (
-    <div class="min-h-screen bg-black px-6 py-12">
+    <div class="min-h-screen px-6 py-12">
       <Head>
         <title>{data.query ? `${data.query} - Libra` : "Libra"}</title>
         <meta name="robots" content="noindex" />

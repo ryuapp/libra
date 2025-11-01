@@ -24,7 +24,7 @@ export default function SearchBar(
 
   return (
     <form onSubmit={handleSubmit} class="w-full">
-      <div class="relative flex items-center rounded-lg border border-gray-700 bg-black p-2 transition-colors focus-within:border-gray-500 hover:border-gray-600">
+      <div class="relative flex items-center rounded-lg border border-gray-700 p-2 transition-colors focus-within:border-gray-500 hover:border-gray-600">
         <MagnifyingGlassIcon class="mr-3 size-5 text-gray-500" />
         <input
           type="text"

@@ -4,7 +4,7 @@ import SearchBar from "../islands/search-bar.tsx";
 
 export default define.page(() => {
   return (
-    <div class="flex min-h-screen flex-col items-center justify-center bg-black px-6">
+    <div class="flex min-h-screen flex-col items-center justify-center px-6">
       <Head>
         <title>Libra - Cross-platform package search</title>
         <link rel="canonical" href="https://libra.ryu.app" />

@@ -23,6 +23,7 @@ export default function SearchResults(
 ) {
   const results = useSignal<PackageResult[]>(initialResults);
   const loading = useSignal(initialResults.length === 0 && query.trim() !== "");
+  const isSSR = initialResults.length > 0;
 
   useEffect(() => {
     if (!query.trim()) {
@@ -50,6 +51,7 @@ export default function SearchResults(
             result: PackageResult | null;
           };
           if (data.result) {
+            // Add result immediately as it arrives
             results.value = [...results.value, data.result];
           }
         }
@@ -58,8 +60,8 @@ export default function SearchResults(
       }
     };
 
-    // Fetch all registries in parallel, add results as they come in
-    Promise.all([
+    // Fetch all registries in parallel
+    Promise.allSettled([
       fetchRegistry("npm", `/api/search/npm?q=${encodeURIComponent(query)}`),
       fetchRegistry("jsr", `/api/search/jsr?q=${encodeURIComponent(query)}`),
       fetchRegistry(
@@ -98,6 +100,28 @@ export default function SearchResults(
 
   return (
     <div class="space-y-3">
+      <style>
+        {`
+        @keyframes slideInFade {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .result-item {
+          animation: slideInFade 0.3s ease-out;
+        }
+
+        .result-item.no-animation {
+          animation: none;
+        }
+      `}
+      </style>
       {results.value.map((pkg) => {
         // Determine the detail page URL based on registry
         const detailUrl = `/${pkg.source}/${decodeURIComponent(pkg.name)}`;
@@ -105,7 +129,9 @@ export default function SearchResults(
         return (
           <div
             key={`${pkg.source}-${pkg.name}`}
-            class="rounded-lg border border-gray-800 bg-gray-900 p-4"
+            class={`result-item rounded-lg border border-gray-800 bg-gray-900 p-4 ${
+              isSSR ? "no-animation" : ""
+            }`}
           >
             <div class="mb-3 flex items-center gap-2 text-xs">
               {pkg.github && (

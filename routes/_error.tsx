@@ -9,6 +9,6 @@ export default function ErrorPage(props: PageProps) {
       return <h1>404 - Page not found</h1>;
     }
   }
-
+  console.error(error);
   return <h1>Unexpected Error</h1>;
 }

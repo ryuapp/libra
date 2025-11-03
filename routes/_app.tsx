@@ -129,7 +129,7 @@ export default define.page(({ Component }) => {
         `}
         </script>
       </head>
-      <body class="bg-black">
+      <body class="bg-black text-white">
         <Component />
       </body>
     </html>

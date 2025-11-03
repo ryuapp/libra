@@ -108,7 +108,7 @@ export default define.page(({ Component }) => {
           {`
           // Set attribute before startViewTransition
           document.addEventListener('click', (e) => {
-            const link = (e.target as Element)?.closest('a[href]');
+            const link = (e.target)?.closest('a[href]');
             if (!link) return;
 
             const href = link.getAttribute('href');
@@ -119,7 +119,7 @@ export default define.page(({ Component }) => {
               // Use startViewTransition to ensure attribute is set before transition
               if ('startViewTransition' in document) {
                 e.preventDefault();
-                (document as any).startViewTransition(() => {
+                (document).startViewTransition(() => {
                   window.location.href = href;
                 });
                 document.documentElement.setAttribute('data-navigate-to-root', 'true');

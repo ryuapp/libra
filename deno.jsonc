@@ -6,6 +6,7 @@
     "build": "deno task prebuild && vite build",
     "deploy": "deno task build && wrangler deploy",
     "start": "deno serve -A _fresh/server.js",
+    "preview": "wrangler dev",
     "update": "deno run -A -r jsr:@fresh/update .",
     "cf-typegen": "wrangler types --include-runtime=false --env-interface  CloudflareEnv ./cloudflare-env.d.ts"
   },
@@ -17,7 +18,7 @@
     "ky": "npm:ky@1.13.0",
     "markdown-it": "npm:markdown-it@14.1.0",
     "valibot": "npm:valibot@1.1.0",
-    "isomorphic-dompurify": "npm:isomorphic-dompurify@2.30.1",
+    "sanitize-html": "npm:sanitize-html@2.13.0",
     "vite": "npm:vite@7.1.10",
     "@preact/signals": "npm:@preact/signals@2.3.2",
     "preact": "npm:preact@10.27.2",

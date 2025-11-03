@@ -1,13 +1,13 @@
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtmlLib from "sanitize-html";
 
 /**
  * Sanitizes HTML to prevent XSS attacks
- * Uses isomorphic-dompurify for server-side and client-side compatibility
+ * Uses sanitize-html with a whitelist of safe tags and attributes
  */
 export function sanitizeHtml(html: string): string {
   try {
-    return DOMPurify.sanitize(html, {
-      ALLOWED_TAGS: [
+    return sanitizeHtmlLib(html, {
+      allowedTags: [
         // Text formatting
         "p",
         "br",
@@ -53,24 +53,22 @@ export function sanitizeHtml(html: string): string {
         "section",
         "article",
       ],
-      ALLOWED_ATTR: [
-        "href",
-        "title",
-        "target",
-        "rel",
-        "src",
-        "alt",
-        "width",
-        "height",
-        "class",
-        "start",
-        "border",
-        "align",
-        "colspan",
-        "rowspan",
-      ],
-      ALLOW_DATA_ATTR: false,
-      KEEP_CONTENT: true,
+      allowedAttributes: {
+        a: ["href", "title", "target", "rel"],
+        img: ["src", "alt", "title", "width", "height"],
+        code: ["class"],
+        pre: ["class"],
+        ol: ["start"],
+        table: ["border"],
+        th: ["align"],
+        td: ["align", "colspan", "rowspan"],
+        span: ["class"],
+        div: ["class"],
+        section: ["class"],
+        article: ["class"],
+      },
+      allowedSchemes: ["http", "https", "data"],
+      disallowedTagsMode: "discard",
     });
   } catch (error) {
     console.error("Error sanitizing HTML:", error);

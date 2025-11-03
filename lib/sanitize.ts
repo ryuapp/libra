@@ -69,6 +69,17 @@ export function sanitizeHtml(html: string): string {
       },
       allowedSchemes: ["http", "https", "data"],
       disallowedTagsMode: "discard",
+      transformTags: {
+        a: (tagName: string, attribs: Record<string, string>) => {
+          return {
+            tagName,
+            attribs: {
+              ...attribs,
+              rel: "nofollow",
+            },
+          };
+        },
+      },
     });
   } catch (error) {
     console.error("Error sanitizing HTML:", error);
